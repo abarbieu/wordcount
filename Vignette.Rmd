@@ -1,0 +1,57 @@
+---
+title: "Vignette"
+author: "Aidan Barbieux"
+date: "6/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# wordcount: an easy and quick way to analyze word frequencies
+
+```{r}
+library("wordcount")
+library("tidyverse")
+```
+
+
+## example data
+
+We would like to see what activities are most popular for national park trails,
+but the information is given as a column of list like strings, see below:
+
+```{r}
+trails <- read.csv(here::here("Data", "national_park_trails.csv"))
+
+trails$activities
+```
+
+## using wordcount
+
+wordcount is set up to deal with data like this, along with more
+
+```{r}
+trails$activities %>%
+  wordcount()
+```
+
+wordcount also works on more sentence like data
+
+```{r}
+speech <- readLines(here::here("Data", "hamlet_speech.txt"))
+
+speech %>%
+  wordcount()
+```
+
+## additional functionality
+
+Say we want to clean up this speech, say punctuation and common words
+
+```{r}
+speech %>%
+  wordcount(n=15,)
+```
+

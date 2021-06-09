@@ -25,8 +25,8 @@ wordcount <- function(data, n=10, wordRegex = "[^ ,'\\[\\]]*",
                       numsRegex = "[0-9]"){
   data %>%
     tolower() %>%
-    { if(removePunct) str_replace_all(., punctRegex, " ") else . } %>%
-    { if(removeNums) str_replace_all(., numsRegex, " ") else . } %>%
+    { if(removePunct) str_replace_all(., punctRegex, "") else . } %>%
+    { if(removeNums) str_replace_all(., numsRegex, "") else . } %>%
     str_extract_all(wordRegex) %>%
     unlist() %>%
     .[. != ""] %>%
