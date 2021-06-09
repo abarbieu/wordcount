@@ -1,0 +1,80 @@
+---
+title: "playground"
+author: "Aidan Barbieux"
+date: "6/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("stringr")
+library("tidyverse")
+
+trails <- read.csv(here::here("Data", "national_park_trails.csv"))
+```
+
+```{r}
+wordcount <- function(data, n=10, wordRegex = "[^ ,'\\[\\]]*",
+                      ignoreWords = c(), removePunct = FALSE,
+                      removeNums = FALSE,
+                      punctRegex = "[[:punct:]]",
+                      numsRegex = "[0-9]"){
+  data %>%
+    tolower() %>%
+    { if(removePunct) str_replace_all(., punctRegex, " ") else . } %>%
+    { if(removeNums) str_replace_all(., numsRegex, " ") else . } %>%
+    str_extract_all(wordRegex) %>%
+    unlist() %>%
+    .[. != ""] %>%
+    .[! . %in% ignoreWords] %>%
+    table %>%
+    sort(decreasing = TRUE) %>%
+    .[1:n]
+}
+
+# wordcount(trails$activities, removePunct=TRUE)
+# wordcount(trails$name, n=5, ignoreWords = c('trail','route','path','via','loop','to','and','with', ''))
+# wordcount(trails$area_name)
+tbl <- wordcount(trails$features)
+frm <- as.data.frame.table(tbl)
+colnames(frm)[1] <- "Word"
+frm
+
+```
+
+```{r}
+countsToFrame <- function(tbl, wordColName = "Word", freqColName = "Freq"){
+  frm <- as.data.frame.table(tbl)
+  colnames(frm)[1] <- wordColName
+  colnames(frm)[2] <- freqColName
+  frm
+}
+
+trails %>%
+  .$activities %>%
+  wordcount() %>%
+  countsToFrame()
+  
+```
+
+```{r}
+visualizeWords <- function(freqData){
+  freqData %>%
+    ggplot(aes(x=Word, y=Freq, fill = Word)) +
+      geom_col() + 
+      labs(title = "Word Frequency",
+           x="Word",
+           y="Frequency") + 
+      coord_flip()
+}
+
+trails %>%
+  .$activities %>%
+  wordcount() %>%
+  countsToFrame() %>%
+  visualizeWords()
+```
+
